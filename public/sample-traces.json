@@ -1,0 +1,71 @@
+{
+  "project": "northstar-checkout",
+  "traces": [
+    {
+      "id": "tr_8f2a91c4",
+      "name": "POST /checkout/confirm",
+      "startedAt": "2026-09-20T23:42:18.120Z",
+      "durationMs": 684,
+      "rootService": "gateway",
+      "environment": "production",
+      "status": "error",
+      "attributes": { "http.method": "POST", "http.status_code": 502, "region": "eu-west" },
+      "spans": [
+        { "id": "sp_01", "parentId": null, "service": "gateway", "operation": "POST /checkout/confirm", "kind": "server", "startMs": 0, "durationMs": 684, "status": "error", "attributes": { "http.status_code": 502, "request.id": "req-10492" }, "note": "" },
+        { "id": "sp_02", "parentId": "sp_01", "service": "checkout", "operation": "confirmOrder", "kind": "server", "startMs": 18, "durationMs": 642, "status": "error", "attributes": { "order.id": "ord-8841" }, "note": "Primary latency contributor" },
+        { "id": "sp_03", "parentId": "sp_02", "service": "inventory", "operation": "reserveItems", "kind": "client", "startMs": 46, "durationMs": 118, "status": "ok", "attributes": { "items.count": 4 }, "note": "" },
+        { "id": "sp_04", "parentId": "sp_03", "service": "database", "operation": "SELECT inventory", "kind": "client", "startMs": 62, "durationMs": 73, "status": "ok", "attributes": { "db.system": "postgresql", "db.rows": 4 }, "note": "" },
+        { "id": "sp_05", "parentId": "sp_02", "service": "payments", "operation": "authorizeCard", "kind": "client", "startMs": 181, "durationMs": 451, "status": "error", "attributes": { "provider": "atlas-pay", "retry.count": 2 }, "note": "Provider timed out after the second attempt" },
+        { "id": "sp_06", "parentId": "sp_05", "service": "payments", "operation": "POST /v2/authorize", "kind": "client", "startMs": 196, "durationMs": 420, "status": "error", "attributes": { "http.status_code": 504 }, "note": "" },
+        { "id": "sp_07", "parentId": "sp_02", "service": "shipping", "operation": "quoteShipment", "kind": "client", "startMs": 171, "durationMs": 84, "status": "ok", "attributes": { "carrier.count": 3 }, "note": "" }
+      ]
+    },
+    {
+      "id": "tr_4d88be20",
+      "name": "GET /catalog/search",
+      "startedAt": "2026-09-20T23:41:57.400Z",
+      "durationMs": 182,
+      "rootService": "gateway",
+      "environment": "production",
+      "status": "ok",
+      "attributes": { "http.method": "GET", "http.status_code": 200, "region": "eu-west" },
+      "spans": [
+        { "id": "sp_11", "parentId": null, "service": "gateway", "operation": "GET /catalog/search", "kind": "server", "startMs": 0, "durationMs": 182, "status": "ok", "attributes": { "query.length": 14 }, "note": "" },
+        { "id": "sp_12", "parentId": "sp_11", "service": "inventory", "operation": "searchCatalog", "kind": "client", "startMs": 12, "durationMs": 141, "status": "ok", "attributes": { "results.count": 24 }, "note": "" },
+        { "id": "sp_13", "parentId": "sp_12", "service": "database", "operation": "catalog_vector_search", "kind": "client", "startMs": 28, "durationMs": 96, "status": "ok", "attributes": { "db.system": "postgresql" }, "note": "" }
+      ]
+    },
+    {
+      "id": "tr_619fa280",
+      "name": "POST /orders",
+      "startedAt": "2026-09-20T23:40:11.020Z",
+      "durationMs": 326,
+      "rootService": "gateway",
+      "environment": "staging",
+      "status": "ok",
+      "attributes": { "http.method": "POST", "http.status_code": 201, "region": "us-east" },
+      "spans": [
+        { "id": "sp_21", "parentId": null, "service": "gateway", "operation": "POST /orders", "kind": "server", "startMs": 0, "durationMs": 326, "status": "ok", "attributes": { "http.status_code": 201 }, "note": "" },
+        { "id": "sp_22", "parentId": "sp_21", "service": "checkout", "operation": "createOrder", "kind": "server", "startMs": 14, "durationMs": 289, "status": "ok", "attributes": { "order.id": "ord-8837" }, "note": "" },
+        { "id": "sp_23", "parentId": "sp_22", "service": "database", "operation": "INSERT order", "kind": "client", "startMs": 44, "durationMs": 84, "status": "ok", "attributes": { "db.rows": 1 }, "note": "" },
+        { "id": "sp_24", "parentId": "sp_22", "service": "inventory", "operation": "commitReservation", "kind": "client", "startMs": 145, "durationMs": 112, "status": "ok", "attributes": { "items.count": 2 }, "note": "" },
+        { "id": "sp_25", "parentId": "sp_22", "service": "shipping", "operation": "scheduleDispatch", "kind": "producer", "startMs": 267, "durationMs": 27, "status": "ok", "attributes": { "queue": "dispatch" }, "note": "" }
+      ]
+    },
+    {
+      "id": "tr_341ce7d1",
+      "name": "GET /orders/:id",
+      "startedAt": "2026-09-20T23:38:06.200Z",
+      "durationMs": 94,
+      "rootService": "gateway",
+      "environment": "production",
+      "status": "ok",
+      "attributes": { "http.method": "GET", "http.status_code": 200, "region": "eu-west" },
+      "spans": [
+        { "id": "sp_31", "parentId": null, "service": "gateway", "operation": "GET /orders/:id", "kind": "server", "startMs": 0, "durationMs": 94, "status": "ok", "attributes": { "cache.hit": true }, "note": "" },
+        { "id": "sp_32", "parentId": "sp_31", "service": "checkout", "operation": "loadOrder", "kind": "client", "startMs": 9, "durationMs": 61, "status": "ok", "attributes": { "order.id": "ord-8821" }, "note": "" },
+        { "id": "sp_33", "parentId": "sp_32", "service": "database", "operation": "SELECT order", "kind": "client", "startMs": 21, "durationMs": 28, "status": "ok", "attributes": { "db.rows": 1 }, "note": "" }
+      ]
+    }
+  ]
+}
